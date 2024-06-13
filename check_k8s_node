@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# colors
+blanc="\033[1;37m"
+gray="\033[0;37m"
+magento="\033[0;35m"
+red="\033[1;31m"
+green="\033[1;32m"
+amarillo="\033[1;33m"
+azul="\033[1;34m"
+rescolor="\e[0m"
+
+listNodes=$(kubectl get nodes | awk 'NR>1{print $1}')
+readarray  node_arr <<<  $listNodes
+
+ok=0
+notok=0
+echo -e "\nSit Down and Wait  \U1F602 :\n"
+for i in ${node_arr[@]}
+do 
+echo -ne "$i ... " 
+status=$(kubectl get node $i | grep $i | awk '{print $2}')
+    if [[ ! $status =~ ^Ready$|^NotReady$  ]]  ; then
+        echo -e "\e[1;31mOh Shit !"$rescolor""
+    else
+        echo -e "\e[1;32mOK!"$rescolor""
+    fi
+done
+
+echo -e "\nNODE STATUS:\n"
+echo "+---------------+---------------+"
+printf "|$green%-15s$rescolor|$red%-15s$rescolor|\n" "Names" "Status"
+echo "+---------------+---------------+"
+printf "|%-15s|%-15s|\n" "$ok" "$notok"
+echo "+---------------+---------------+"
